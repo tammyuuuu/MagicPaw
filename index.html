@@ -43,7 +43,29 @@ nav{width:calc(100% - var(--page-gutter) - var(--page-gutter));max-width:calc(60
 ::-webkit-scrollbar-thumb:hover{background:#9dbfcd;background-clip:content-box;border:3px solid transparent}
 ::-webkit-scrollbar-corner{background:transparent}
 dialog::-webkit-scrollbar,.plan-list::-webkit-scrollbar,textarea::-webkit-scrollbar{background:transparent}
-@media(max-height:560px){body:has(#home:not([hidden])) .app{height:auto}}
+/* Fit the home dashboard into the usable viewport, including iOS standalone. */
+body:has(#home:not([hidden])) .app{
+  height:100vh;height:100dvh;min-height:0;
+  padding-top:calc(12px + env(safe-area-inset-top,0px));
+  padding-bottom:calc(82px + env(safe-area-inset-bottom,0px));
+}
+#home .grid{grid-template-rows:minmax(0,1.08fr) minmax(0,1fr);gap:12px}
+#home .card{min-height:0}
+#home .card h2{flex-shrink:0}
+#home .mini-chart-wrap{flex:1 1 0;overflow:hidden}
+#home .mini-chart-wrap svg{height:100%;width:100%;min-height:0;object-fit:contain}
+#home .mini-house-line{margin:4px 0}
+#home .calendar-center{min-height:0;overflow:auto;padding:8px 0}
+#home .home-actions button,#home .plan-foot button,#home .mini-go,#home .link{padding-top:9px;padding-bottom:9px}
+#home .plan-row{flex-shrink:0}
+@media(max-height:700px){
+  #home{--pad-card:12px;--draw-copy-pad:0px;--draw-chrome:49px}
+  #home .grid{gap:10px}
+  #home .plan-list{gap:4px;margin:6px 0}
+  #home .plan-row{padding:5px 6px}
+}
+/* Very short landscape windows retain scrolling so controls stay reachable. */
+@media(max-height:450px){body:has(#home:not([hidden])) .app{height:auto;min-height:100dvh}#home .grid{grid-template-rows:260px 260px}}
 @supports (height:1cqh){.draw-button .mini-card{margin:auto auto 0;width:min(100%,clamp(48px,calc((100cqh - var(--draw-chrome)) * 250 / 429),165px));height:auto;max-width:none;max-height:none;flex:none}}
 .reading-toggle{display:block;margin:10px auto 0;padding:10px 16px;border:1px solid var(--line);border-radius:10px;background:#f7fbfc}.reading-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:16px;padding-bottom:8px;border-bottom:1px solid var(--line)}.reading-tab{min-width:0;padding:8px 2px;border-radius:8px;color:#829ca8;font-size:12px;white-space:nowrap}.reading-tab[aria-selected=true]{background:#e7f2f6;color:#426b7b;font-weight:600}.reading-tab:focus-visible{outline-offset:1px}.reading-panel{padding:14px 2px 4px;text-align:left}.reading-panel h3{font-size:14px;margin-bottom:6px}.reading-panel p{font-size:14px;line-height:1.9}
 #house-panel{padding:16px}#house-panel .task-row{gap:6px;min-height:34px;padding:4px 8px;margin-bottom:5px}#house-panel .task-row .task-name{margin:0;text-align:left;line-height:1.4}#house-panel .cal-day-section strong{margin:8px 0 5px}.task-count{flex:none;color:#829ca8;font-size:11px;white-space:nowrap}.task-link{flex:none;padding:4px 7px;border:1px solid #dfeaf0;border-radius:7px;background:#fff;color:#5f8b9c;font-size:11px;line-height:1.4}.task-link:disabled{border-color:transparent;background:transparent;color:#829ca8}
