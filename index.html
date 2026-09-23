@@ -14,7 +14,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>今日留爪 · 把今天轻轻留下</title>
 <style>
-:root{--ink:#5b5154;--title:#55444a;--line:#f0e2e8;--blue:#f8dfe9;--active:#c96794;--pad-card:18px;--pad-art:12px;--draw-copy-pad:0px;--draw-chrome:49px}
+:root{--ink:#5b5154;--title:#55444a;--line:#f0e2e8;--blue:#f8dfe9;--brand:#f59ab4;--brand-hover:#ec86a4;--active:var(--brand);--pad-card:18px;--pad-art:12px;--draw-copy-pad:0px;--draw-chrome:49px}
 html{height:100%;min-height:100vh;background-color:#fff9f6;overscroll-behavior:none}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background-color:#fff9f6;background-image:linear-gradient(160deg,#fff3f5 0%,#fffbf8 58%,#fdf6f0);background-size:cover;background-position:center;background-repeat:no-repeat;color:var(--ink);font:14px/1.6 "PingFang SC","Microsoft YaHei",sans-serif;-webkit-text-size-adjust:100%;overscroll-behavior:none}button,input{font:inherit;color:inherit}button{appearance:none;border:0;cursor:pointer;background:none;text-decoration:none;-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:2px solid var(--active);outline-offset:4px}h1,h2,p{margin:0}[hidden]{display:none!important}
 .app{width:100%;max-width:600px;min-height:100vh;margin:auto;padding:calc(26px + env(safe-area-inset-top,0px)) clamp(16px,4vw,24px) calc(84px + env(safe-area-inset-bottom));display:flex;flex-direction:column}
@@ -82,12 +82,12 @@ body:has(#home:not([hidden])){position:fixed;inset:0;width:100%;height:100%;over
 .link,.mini-go,.home-actions button,.plan-foot button{color:#6796a9}
 .text-button:hover,.feeling-btn:hover{color:#3f738a}
 .home-actions button:active,.plan-foot button:active{color:#3f738a}
-.primary{background:#f8dfe9;color:#84405f}.primary:hover{background:#f2c9da}
-nav{border-top-color:var(--line)}nav button{color:#a99ba0}nav button[aria-selected=true]{color:#b84e7f;background:#fce7f0}
-.reading-tab[aria-selected=true]{background:#fce7f0;color:#9d426f}
-.score-value[aria-pressed=true]{background:#f7d1e0;color:#84405f}
-.plan-mark{border-color:#e4b9ca}.plan-row[aria-pressed=true] .plan-mark{background:#c96794;border-color:#c96794}
-.cal-cell.today{background:#fce7f0;border-color:#e9a4c0;color:#84405f}.week-day.today{color:#a34a75}.week-day.today:after{outline-color:#e9a4c0}
+.primary{background:var(--brand);color:#fff}.primary:hover{background:var(--brand-hover)}
+nav{border-top-color:var(--line)}nav button{color:#a99ba0}nav button[aria-selected=true]{color:#fff;background:var(--brand)}
+.reading-tab[aria-selected=true]{background:var(--brand);color:#fff}
+.score-value[aria-pressed=true]{background:var(--brand);color:#fff}
+.plan-mark{border-color:#e4b9ca}.plan-row[aria-pressed=true] .plan-mark{background:var(--brand);border-color:var(--brand)}
+.cal-cell.today{background:var(--brand);border-color:var(--brand);color:#fff}.week-day.today{color:#a34a75}.week-day.today:after{outline-color:var(--brand)}
 .draw-caption,.plan-name,#house-panel .task-row .task-name{color:var(--title)}.draw-detail,.plan-freq,.task-count,.mini-house-line{color:#927d84}
 .chart-label,.mini-num{fill:#584b50}.chart-sign{fill:#947f85}
 select,textarea,input[type=date]{background:#fffaf8;border-color:var(--line)}
