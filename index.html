@@ -61,6 +61,8 @@ body:has(#home:not([hidden])){position:fixed;inset:0;width:100%;height:100%;over
 #home .calendar-center{min-height:0;overflow:auto;padding:8px 0}
 #home .home-actions button,#home .plan-foot button,#home .mini-go,#home .link{padding-top:9px;padding-bottom:9px}
 #home .plan-row{flex-shrink:0}
+#home .plan-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;white-space:normal;overflow-wrap:anywhere;line-height:1.45;max-height:2.9em}
+@media(max-width:380px){#home .plan-row{gap:5px;padding-left:5px;padding-right:5px}#home .plan-freq{font-size:10px;white-space:nowrap}}
 @media(max-height:700px){
   #home{--pad-card:12px;--draw-copy-pad:0px;--draw-chrome:49px}
   #home .grid{gap:10px}
@@ -314,7 +316,15 @@ select,textarea,input[type=date]{background:#fffaf8;border-color:var(--line)}
         state.plans.push({id:planId,taskId:task.id,name:task.name,freq:'daily',house:task.house});
         save();renderHouse();renderPlans();renderCalIfOpen();
       };
-      row.append(name,count,join);taskBox.append(row);
+      const del=element('button','删除','task-link');
+      del.type='button';del.setAttribute('aria-label','删除任务：'+task.name);
+      del.onclick=()=>{
+        if(!window.confirm('删除“'+task.name+'”？关联的打卡项也会移除，历史打卡记录会保留。'))return;
+        state.plans=state.plans.filter(plan=>plan.taskId!==task.id);
+        state.tasks=state.tasks.filter(item=>item.id!==task.id);
+        save();renderHouse();renderPlans();renderCalIfOpen();drawMiniChart();
+      };
+      row.append(name,count,join,del);taskBox.append(row);
     });
     const addTask=name=>{
       const value=String(name||'').trim();if(!value)return;
