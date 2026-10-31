@@ -8,7 +8,7 @@ const PREFIX = 'paw:' + new URL(ROOT).pathname + ':';
 const META = PREFIX + 'meta';
 const MEDIA = PREFIX + 'media';
 const POINTER = new URL('__paw_current', ROOT).href;
-const CORE = ['index.html', 'manifest.webmanifest', 'storage.js', 'pwa.js',
+const CORE = ['index.html', 'manifest.webmanifest', 'storage.js', 'sleep.js', 'pwa.js',
   'tarot_data.js', 'tarot_daily_content.js', 'tarot_minor_daily_content.js', 'tarot_spiritual_content.js'];
 const IMAGES = ['assets/icon-192.png', 'assets/icon-512.png',
   ...Array.from({length:78}, (_, i) => '图片/维特塔罗/' + i + '.webp'), '图片/维特塔罗/back-mobile.webp'];
@@ -128,3 +128,4 @@ self.addEventListener('fetch', event => {
     event.respondWith(cached.then(response => response || fresh));
   }
 });
+
