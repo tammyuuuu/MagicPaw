@@ -13,12 +13,18 @@ window.PawSleep=(state,save)=>{
  const button=(label,fn)=>{const b=document.createElement('button');b.className='sleep-action';b.innerHTML=moon.innerHTML;const text=document.createElement('span');text.textContent=label;b.append(text);b.onclick=()=>{fn();commit()};actions.append(b)};
  if(pending){moon.hidden=true;status.textContent='起床后感觉怎么样？';actions.classList.add('sleep-feelings');for(const feeling of ['疲惫','一般','正常','精神'])button(feeling,()=>{pending.feeling=feeling;delete pending.feelingPending})}
  else if(!r)button('准备睡觉',()=>data.records.unshift({id:Date.now(),start:Date.now(),end:null,wakes:[],feeling:''}));
- else {button(w?'继续睡觉':'我醒了',()=>{if(w){w.end=Date.now();if(r.wakeMinutes!==undefined)r.wakeMinutes=(r.wakeMinutes||0)+(w.end-w.start)/60000}else {if(!r.wakes)r.wakes=[];r.wakes.push({start:Date.now(),end:null,reason:'未选择'});if(r.wakeCount!==undefined)r.wakeCount=(r.wakeCount||0)+1}});button('正式起床',()=>{r.end=Date.now();r.feelingPending=true;if(w){w.end=r.end;if(r.wakeMinutes!==undefined)r.wakeMinutes=(r.wakeMinutes||0)+(w.end-w.start)/60000}})}
+ else {button(w?'继续睡觉':'我醒了',()=>{
+ if(w){w.end=Date.now();if(w.pending&&r.wakeCount!==undefined)r.wakeCount=(r.wakeCount||0)+1;delete w.pending;if(r.wakeMinutes!==undefined)r.wakeMinutes=(r.wakeMinutes||0)+(w.end-w.start)/60000}
+ else {if(!r.wakes)r.wakes=[];r.wakes.push({start:Date.now(),end:null,pending:true,reason:'未选择'})}
+ });button('正式起床',()=>{
+ r.end=Date.now();r.feelingPending=true;
+ if(w){r.wakes.splice(r.wakes.indexOf(w),1);if(!w.pending&&r.wakeCount!==undefined)r.wakeCount=Math.max(0,(r.wakeCount||0)-1)}
+ })}
  const link=document.createElement('button');link.className='link sleep-footer';link.textContent='睡眠记录 →';link.onclick=open;tile.append(link);
  }
  const local=t=>{const d=new Date(t);return new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,16)};
  const fmt=m=>`${Math.floor(m/60)}小时${Math.round(m%60)}分`;
- const night=r=>({count:r.wakeCount!==undefined?r.wakeCount:(Array.isArray(r.wakes)?r.wakes.length:null),minutes:r.wakeMinutes!==undefined?r.wakeMinutes:(r.wakes?.length?r.wakes.every(w=>w.end)?r.wakes.reduce((n,w)=>n+(w.end-w.start)/60000,0):null:0)});
+ const night=r=>({count:r.wakeCount!==undefined?r.wakeCount:(Array.isArray(r.wakes)?r.wakes.filter(w=>w.end).length:null),minutes:r.wakeMinutes!==undefined?r.wakeMinutes:(r.wakes?.length?r.wakes.filter(w=>w.end).reduce((n,w)=>n+(w.end-w.start)/60000,0):0)});
  const duration=r=>Number.isFinite(r.start)&&Number.isFinite(r.end)&&r.end>r.start?{bed:(r.end-r.start)/60000}:null;
  let range=7;
  const active=()=>data.records.find(r=>r.start&&!r.end);
