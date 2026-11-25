@@ -18,7 +18,7 @@ const server = http.createServer(async (req, res) => {
     let body = await fs.readFile(path.join(root, relative));
     if (relative === 'index.html') body = Buffer.from(body.toString().replace('</title>', revision + '</title>'));
     if (relative === 'sw.js') body = Buffer.from(body.toString() + workerRevision);
-    const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript','.webmanifest':'application/manifest+json','.webp':'image/webp','.png':'image/png'};
+    const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript','.css':'text/css','.webmanifest':'application/manifest+json','.webp':'image/webp','.png':'image/png'};
     res.setHeader('Content-Type', mime[path.extname(relative)] || 'text/plain');
     res.end(body);
   } catch (_) { res.writeHead(404); res.end('missing'); }
@@ -53,11 +53,16 @@ const server = http.createServer(async (req, res) => {
     await page.evaluate(()=>document.querySelectorAll('dialog[open]').forEach(d=>d.close()));
     await page.locator('#feel-note-open').click();
     await page.locator('.note-input').last().fill('断网保存的记录');
-    await page.locator('#tab-calendar').click();
+    await page.locator('#tab-home').click();
+    await page.locator('#home-dates').click();
     await page.locator('#date-new').click();
     await page.locator('#date-kind').selectOption('custom');
     await page.locator('#date-name').fill('离线日程');
-    await page.locator('#date-solar').fill('2026-12-01');
+    await page.locator('#date-picker-open').click();
+    await page.locator('#picker-year').selectOption('2026');
+    await page.locator('#picker-month').selectOption('12');
+    await page.getByRole('button', {name:'2026年12月1日', exact:true}).click();
+    await page.locator('#picker-confirm').click();
     await page.locator('#date-form button[type="submit"]').click();
     const saved = await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),KEY);
     assert(saved.tasks.some(t=>t.id==='partner'));
@@ -101,8 +106,7 @@ const server = http.createServer(async (req, res) => {
     console.log('PASS partial update fallback and independent device/browser storage');
 
     // Export includes check-ins and dates; restore validates before writing.
-    await page.locator('#tab-records').click();
-    await page.locator('#paw-tools summary').click();
+    await page.locator('#tab-account').click();
     const downloadPromise = page.waitForEvent('download');
     await page.locator('#backup-all').click();
     const download = await downloadPromise;

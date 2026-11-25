@@ -9,6 +9,7 @@ const META = PREFIX + 'meta';
 const MEDIA = PREFIX + 'media';
 const POINTER = new URL('__paw_current', ROOT).href;
 const CORE = ['index.html', 'manifest.webmanifest', 'storage.js', 'sleep.js', 'pwa.js',
+  'cycle-data.js', 'cycle.js', 'cycle.css',
   'tarot_data.js', 'tarot_daily_content.js', 'tarot_minor_daily_content.js', 'tarot_spiritual_content.js'];
 const IMAGES = ['assets/icon-192.png', 'assets/icon-512.png',
   ...Array.from({length:78}, (_, i) => '图片/维特塔罗/' + i + '.webp'), '图片/维特塔罗/back-mobile.webp'];
@@ -32,6 +33,7 @@ async function network(url) {
     // A custom 404 page must never become a cached JavaScript/image file.
     const type = response.headers.get('content-type') || '';
     if (url.endsWith('.js') && !/javascript/.test(type)) throw Error('Invalid script response');
+    if (url.endsWith('.css') && !type.startsWith('text/css')) throw Error('Invalid stylesheet response');
     if (/\.(webp|png)$/.test(url) && !type.startsWith('image/')) throw Error('Invalid image response');
     return response;
   } finally { clearTimeout(timer); }
@@ -105,8 +107,9 @@ self.addEventListener('fetch', event => {
       const response = await cache.match(urlOf('index.html'));
       if (!response) return fetch(request);
       let html = await response.text();
-      // Pin all scripts in this document to the same snapshot, even during an update.
-      html = html.replace(/(<script\s+src=")([^"?]+)(")/g, (_, a, path, c) => a + path + '?__paw_release=' + version + c);
+      // Pin scripts and styles to the same snapshot, even during an update.
+      html = html.replace(/(<script\s+src="|<link\s+rel="stylesheet"\s+href=")([^"?]+)(")/g,
+        (_, a, path, c) => a + path + '?__paw_release=' + version + c);
       html = html.replace('<head>', '<head><meta name="paw-release" content="' + version + '">');
       return new Response(html, {headers:{'Content-Type':'text/html; charset=utf-8'}});
     })());
