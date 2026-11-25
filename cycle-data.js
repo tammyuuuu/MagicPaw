@@ -6,15 +6,19 @@
   const choices = {
     flow: ['少量', '中量', '大量'],
     sex: ['有保护措施', '无保护措施'],
-    symptoms: ['腹痛', '腰痛', '头痛', '乳房胀痛', '腹胀', '疲劳', '恶心', '痘痘', '便秘', '腹泻', '食欲变化', '分泌物变化'],
-    moods: ['开心', '平静', '低落', '焦虑', '烦躁', '敏感', '情绪波动']
+    symptoms: ['腹痛', '腰痛', '头痛', '乳房胀痛', '腹胀', '疲劳', '痘痘', '分泌物变化'],
+    moods: ['兴奋', '开心', '放松', '敏感', '焦虑', '生气', '低落', '悲伤']
   };
   const aliases = {
     flow: new Map([['中等', '中量'], ['较多', '大量']]),
     sex: new Map([['有（有保护）', '有保护措施'], ['有（无保护）', '无保护措施']]),
     symptoms: new Map([['疲倦', '疲劳']])
   };
-  const legacyChoices = {sex: ['无', '有（未注明保护情况）'], symptoms: ['腰酸']};
+  const legacyChoices = {
+    sex: ['无', '有（未注明保护情况）'],
+    symptoms: ['腰酸', '恶心', '便秘', '腹泻', '食欲变化'],
+    moods: ['平静', '烦躁', '情绪波动']
+  };
   const accepts = (key, value) =>
     choices[key].includes(value) || aliases[key]?.has(value) || legacyChoices[key]?.includes(value);
   const daysBetween = (from, to) => Math.round((Date.parse(to) - Date.parse(from)) / DAY);
@@ -49,7 +53,7 @@
         (entry.spotting !== undefined && typeof entry.spotting !== 'boolean') ||
         (entry.sex !== undefined && !accepts('sex', entry.sex)) ||
         (entry.symptoms !== undefined && (!Array.isArray(entry.symptoms) || entry.symptoms.some(value => !accepts('symptoms', value)))) ||
-        (entry.moods !== undefined && (!Array.isArray(entry.moods) || entry.moods.some(value => !choices.moods.includes(value)))) ||
+        (entry.moods !== undefined && (!Array.isArray(entry.moods) || entry.moods.some(value => !accepts('moods', value)))) ||
         (entry.note !== undefined && (typeof entry.note !== 'string' || entry.note.length > 2000))) {
         throw Error('每日经期记录格式异常');
       }

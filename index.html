@@ -243,26 +243,16 @@ body:has(.sl-edit-dialog[open]){overflow:hidden}
               <span>淋漓 / 点滴出血</span>
               <input type="checkbox" role="switch" id="cycle-spotting" aria-label="淋漓 / 点滴出血">
             </label>
-            <details name="cycle-entry">
-              <summary class="cycle-record-row" aria-controls="cycle-flow"><span>经量</span><span class="cycle-record-value" id="cycle-flow-value"></span></summary>
-              <div id="cycle-flow" class="cycle-field cycle-options cycle-flow-options" role="group" aria-label="经量"></div>
-            </details>
-            <details name="cycle-entry">
-              <summary class="cycle-record-row" aria-controls="cycle-sex"><span>性行为</span><span class="cycle-record-value" id="cycle-sex-value"></span></summary>
-              <div id="cycle-sex" class="cycle-field cycle-options" role="group" aria-label="性行为"></div>
-            </details>
-            <details name="cycle-entry">
-              <summary class="cycle-record-row" aria-controls="cycle-symptoms"><span>身体症状</span><span class="cycle-record-value" id="cycle-symptoms-value"></span></summary>
-              <div id="cycle-symptoms" class="cycle-field cycle-options" role="group" aria-label="身体症状"></div>
-            </details>
-            <details name="cycle-entry">
-              <summary class="cycle-record-row" aria-controls="cycle-moods"><span>心情</span><span class="cycle-record-value" id="cycle-moods-value"></span></summary>
-              <div id="cycle-moods" class="cycle-field cycle-options" role="group" aria-label="心情"></div>
-            </details>
-            <details name="cycle-entry">
-              <summary class="cycle-record-row" aria-controls="cycle-note"><span>备注</span><span class="cycle-record-value" id="cycle-note-value"></span></summary>
-              <div class="cycle-field"><textarea id="cycle-note" aria-label="备注" rows="3" maxlength="2000"></textarea></div>
-            </details>
+            <label class="cycle-record-row cycle-switch-row"><span>经量</span><input type="checkbox" role="switch" id="cycle-flow-switch" aria-controls="cycle-flow"></label>
+              <div id="cycle-flow" hidden class="cycle-field cycle-options cycle-flow-options" role="group" aria-label="经量"></div>
+            <label class="cycle-record-row cycle-switch-row"><span>性行为</span><input type="checkbox" role="switch" id="cycle-sex-switch" aria-controls="cycle-sex"></label>
+              <div id="cycle-sex" hidden class="cycle-field cycle-options" role="group" aria-label="性行为"></div>
+            <label class="cycle-record-row cycle-switch-row"><span>身体症状</span><input type="checkbox" role="switch" id="cycle-symptoms-switch" aria-controls="cycle-symptoms"></label>
+              <div id="cycle-symptoms" hidden class="cycle-field cycle-options" role="group" aria-label="身体症状"></div>
+            <label class="cycle-record-row cycle-switch-row"><span>心情</span><input type="checkbox" role="switch" id="cycle-moods-switch" aria-controls="cycle-moods"></label>
+              <div id="cycle-moods" hidden class="cycle-field cycle-options" role="group" aria-label="心情"></div>
+            <label class="cycle-record-row cycle-switch-row"><span>备注</span><input type="checkbox" role="switch" id="cycle-note-switch" aria-controls="cycle-note-field"></label>
+              <div id="cycle-note-field" hidden class="cycle-field"><textarea id="cycle-note" aria-label="备注" rows="3" maxlength="2000"></textarea></div>
           </div>
           <p id="cycle-save-status" class="cycle-muted" role="status" hidden></p>
         </div>

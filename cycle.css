@@ -88,54 +88,82 @@
   border-radius: 9px;
   font-variant-numeric: tabular-nums;
 }
-.cycle-day span {
+.cycle-day > span:first-child {
   display: grid;
   place-items: center;
   width: min(100%, 36px);
   height: 33px;
+  padding-bottom: 7px;
   border: 1px solid transparent;
   border-radius: 10px;
 }
-.cycle-day[data-phase=period] span, .cycle-legend [data-phase=period] {
+.cycle-day[data-phase=period] > span:first-child, .cycle-legend [data-phase=period] {
   background: var(--cycle-rose-bg);
   color: #8e3453;
 }
-.cycle-day[data-phase=forecast] span, .cycle-legend [data-phase=forecast] {
+.cycle-day[data-phase=forecast] > span:first-child, .cycle-legend [data-phase=forecast] {
   border: 1px dashed var(--cycle-pink);
   color: var(--cycle-pink);
   background: #fff8fb;
 }
-.cycle-day[data-phase^=ovulation] span, .cycle-legend [data-phase=ovulation] {
+.cycle-day[data-phase^=ovulation] > span:first-child, .cycle-legend [data-phase=ovulation] {
   color: #345f83;
   background: var(--cycle-blue-bg);
 }
-.cycle-day[data-phase=ovulation-day] span { border: 1px solid var(--cycle-blue-dot); font-weight: 700; }
-.cycle-day[aria-current=date] span { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
-.cycle-day[aria-pressed=true] span { outline: 2px solid #795c70; outline-offset: 1px; }
+.cycle-day[data-phase=ovulation-day] > span:first-child { border: 1px solid var(--cycle-blue-dot); font-weight: 700; }
+.cycle-day[aria-current=date] > span:first-child { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.cycle-day[aria-pressed=true] > span:first-child { outline: 2px solid #795c70; outline-offset: 1px; }
 .cycle-spotting-key { background: var(--cycle-lavender-bg); border: 1px solid var(--cycle-lavender); }
-.cycle-day[data-spotting=true][data-phase=""] span {
+.cycle-day[data-spotting=true][data-phase=""] > span:first-child {
   color: var(--cycle-violet);
   background: var(--cycle-lavender-bg);
 }
-.cycle-day[data-entry=true]::after, .cycle-day[data-spotting=true]:not([data-phase=""])::before {
+.cycle-day[data-spotting=true]:not([data-phase=""])::before {
   content: "";
   position: absolute;
-  width: 4px;
-  height: 4px;
-  bottom: 3px;
-  border-radius: 100%;
-}
-.cycle-day[data-entry=true]::after {
-  right: max(4px, calc(50% - 14px));
-  background: #795c70;
-}
-.cycle-day[data-spotting=true]:not([data-phase=""])::before {
+  top: 4px;
   left: max(4px, calc(50% - 14px));
   width: 6px;
   height: 6px;
+  border-radius: 50%;
   background: var(--cycle-lavender);
   outline: 1px solid #fff;
 }
+.cycle-day > .cycle-day-icons {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  border-radius: 0;
+  background: transparent;
+  text-decoration: none;
+  pointer-events: none;
+}
+.cycle-day-icons svg {
+  display: block;
+  width: 8px;
+  height: 8px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cycle-day-icons [data-kind=flow] { color: #a55977; }
+.cycle-day-icons [data-kind=sex] { color: #b5688b; }
+.cycle-day-icons [data-kind=symptoms] { color: #9172ac; }
+.cycle-day-icons [data-kind=moods] { color: #9d793e; }
+.cycle-day-icons [data-kind=note] { color: #666896; }
+.cycle-day-icons b { margin-left: 1px; font-size: 7px; line-height: 1; color: var(--cycle-muted); }
 .cycle-legend {
   display: flex;
   justify-content: center;
@@ -252,7 +280,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  min-height: 44px;
+  min-height: 55px;
   padding: 7px 3px;
   border-top: 1px solid var(--cycle-edge);
   color: var(--cycle-ink);
@@ -260,49 +288,34 @@
 .cycle-record-row small { display: block; margin-top: 1px; font-size: 11px; color: var(--cycle-muted); }
 .cycle-record-row small:empty { display: none; }
 .cycle-record-row > span:first-child { min-width: 0; flex: 0 1 auto; }
-.cycle-switch-row, summary.cycle-record-row { cursor: pointer; }
-.cycle-switch-row:has(:disabled) { cursor: default; }
-.cycle-switch-row input {
-  position: relative;
-  flex: none;
+.cycle-switch-row { cursor: pointer; }
+.cycle-switch-row:has(input:disabled) { cursor: default; }
+#cycle-daily-controls .cycle-switch-row input[role=switch] {
+  -webkit-appearance: none;
   appearance: none;
+  flex: 0 0 38px;
   width: 38px;
   height: 23px;
   margin: 0;
   border: 1px solid #d8cbd2;
-  border-radius: 20px;
-  background: #eee8ec;
+  border-radius: 999px;
+  background-color: #eee8ec;
+  background-image: radial-gradient(circle, #fff 0 8px, transparent 8.5px);
+  background-size: 17px 17px;
+  background-repeat: no-repeat;
+  background-position: 2px center;
   cursor: inherit;
+  transition: background-color .16s ease, background-position .16s ease;
 }
-.cycle-switch-row input::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 3px #70465c36;
+#cycle-daily-controls .cycle-switch-row input[role=switch]:checked {
+  border-color: var(--cycle-rose);
+  background-color: var(--cycle-rose);
+  background-position: 17px center;
 }
-.cycle-switch-row input:checked { background: var(--cycle-rose); border-color: var(--cycle-rose); }
-.cycle-switch-row input:checked::after { transform: translateX(15px); }
-.cycle-switch-row input:disabled { opacity: .5; }
-.cycle-spotting-row input:checked { background: var(--cycle-lavender); border-color: var(--cycle-lavender); }
-summary.cycle-record-row { list-style: none; }
-summary.cycle-record-row::-webkit-details-marker { display: none; }
-summary.cycle-record-row::after { content: "›"; color: var(--cycle-muted); font-size: 16px; }
-details[open] > summary.cycle-record-row::after { margin-left: auto; transform: rotate(90deg); }
-details[open] > summary .cycle-record-value { display: none; }
-.cycle-record-value {
-  margin-left: auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 12px;
-  color: var(--cycle-muted);
+#cycle-daily-controls .cycle-switch-row input[role=switch]:disabled { opacity: .5; }
+@media (prefers-reduced-motion: reduce) {
+  #cycle-daily-controls .cycle-switch-row input[role=switch] { transition: none; }
 }
-.cycle-record-value:not(#cycle-note-value) { white-space: normal; text-align: right; overflow-wrap: anywhere; }
 .cycle-field { padding: 0 3px 10px; }
 .cycle-field textarea {
   display: block;
@@ -312,7 +325,7 @@ details[open] > summary .cycle-record-value { display: none; }
   background: #faf6f8;
   resize: vertical;
 }
-.cycle-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.cycle-options { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
 .cycle-option {
   min-height: 34px;
   padding: 4px 11px;
@@ -327,16 +340,31 @@ details[open] > summary .cycle-record-value { display: none; }
   border-color: #e8adc0;
 }
 .cycle-flow-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.cycle-flow-options .cycle-option {
+#cycle-sex { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cycle-options .cycle-option {
   display: flex;
-  min-height: 51px;
+  min-width: 0;
+  height: 72px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 5px;
   padding: 5px 2px;
+  border-radius: 13px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
-.cycle-flow-drops { display: flex; align-items: center; gap: 4px; height: 12px; }
+.cycle-choice-art { display: block; width: 29px; height: 29px; flex: none; }
+#cycle-sex { --option-base:#fdf1f6; --option-picked:#f6d8e6; --option-edge:#e6aac5; --option-ink:#994969; }
+#cycle-symptoms { --option-base:#f6f1fc; --option-picked:#eadcf8; --option-edge:#c9afe2; --option-ink:#76548c; }
+#cycle-moods { --option-base:#fff8e8; --option-picked:#f9e7ba; --option-edge:#e6c27e; --option-ink:#825b2d; }
+.cycle-options .cycle-option { background: var(--option-base, #f4f6f9); }
+.cycle-options .cycle-option[aria-pressed=true] {
+  background: var(--option-picked, var(--cycle-rose-bg));
+  border-color: var(--option-edge, #e8adc0);
+  color: var(--option-ink, var(--cycle-pink));
+}
+.cycle-flow-drops { display: flex; align-items: center; gap: 4px; height: 29px; }
 .cycle-flow-drops i {
   width: 9px;
   height: 9px;

@@ -27,6 +27,76 @@
   const choiceFields = Object.keys(choices);
   const multiChoiceFields = new Set(['symptoms', 'moods']);
   const entryFields = [...choiceFields, 'note'];
+  const expanded = new Set();
+  const fieldPanel = key => $(key === 'note' ? 'note-field' : key);
+  const recordIcons = {
+    flow: 'M8 2C6 5 3.5 7.5 3.5 10a4.5 4.5 0 0 0 9 0C12.5 7.5 10 5 8 2Z',
+    sex: 'M8 13.5 3 8.5C-1 4.5 4.5.5 8 5c3.5-4.5 9-.5 5 3.5Z',
+    symptoms: 'M1 8h3l2-4 3 8 2-4h4',
+    moods: 'M14 8a6 6 0 1 1-12 0 6 6 0 0 1 12 0ZM5.5 6h.1m4.8 0h.1M5.5 9.5q2.5 3 5 0',
+    note: 'M4 2.5h8v11H4zM6 6h4M6 9h4'
+  };
+  const recordLabels = ['经量', '性行为', '身体症状', '心情', '备注'];
+  const sexLabels = ['保护性行为', '无保护性行为'];
+
+  function choiceArt(key, index, legacy) {
+    const torso = '<path fill="url(#paint)" d="M10 5q6 4 12 0c3 4 4 7 2 11-2 4-1 7 2 11q-10 5-20 0c3-4 4-7 2-11-2-4-1-7 2-11Z"/>';
+    const face = '<ellipse fill="url(#paint)" cx="16" cy="16" rx="12" ry="11.5"/><ellipse fill="#fff" opacity=".48" cx="11" cy="9" rx="4" ry="1.8"/>';
+    const cheeks = '<ellipse fill="#df907f" opacity=".36" cx="8.5" cy="18" rx="2.5" ry="1.6"/><ellipse fill="#df907f" opacity=".36" cx="23.5" cy="18" rx="2.5" ry="1.6"/>';
+    const mark = '<path fill="#fff3fc" d="m17 16-4 6h3l-1 4 5-6h-3Z"/>';
+    const symptomArt = [
+      torso + mark,
+      torso + '<path d="M16 8q-3 4 0 8t0 8" fill="none" stroke="#eee4fc" stroke-width="2" stroke-dasharray="2 2"/><circle cx="16" cy="23" r="3.5" fill="#946ab6"/>',
+      face + '<path fill="#9674b6" d="M4 15a12 12 0 1 1 24 0c-5 0-9-2-12-6-2 4-7 6-12 6Z"/><path fill="#fff" d="m23 5-4 6h3l-1 4 5-6h-3Z"/>',
+      torso + '<circle cx="12" cy="15" r="4" fill="#f3e9fc"/><circle cx="20" cy="15" r="4" fill="#f3e9fc"/>',
+      torso + '<ellipse fill="#eee1fa" cx="16" cy="21" rx="6.5" ry="4.5"/><circle cx="16" cy="20" r="1" fill="#9875b5"/>',
+      face + '<path d="M8 16q2 2 4 0m8 0q2 2 4 0" stroke="#77568f" stroke-width="1.5" fill="none"/><ellipse cx="16" cy="22" rx="3" ry="2" fill="#9e7dbc"/>',
+      face + '<circle cx="10" cy="17" r="2.7" fill="#ab77bf"/><circle cx="21" cy="13" r="2" fill="#ab77bf"/><circle cx="22" cy="21" r="1.5" fill="#ab77bf"/>',
+      '<path fill="url(#paint)" d="M16 3C12 9 6 15 6 21a10 9 0 0 0 20 0c0-6-6-12-10-18Z"/><ellipse cx="12" cy="21" rx="2.1" ry="4" fill="#fff" opacity=".58"/>'
+    ];
+    const expressions = [
+      'M9 14l2-2 2 2m6 0 2-2 2 2M11 18q5 10 10 0Z',
+      'M11 14v1m10-1v1M11 19q5 6 10 0',
+      'M9 15q2 2 4 0m6 0q2 2 4 0M13 20q3 3 6 0',
+      'M9 13l4 2m10-2-4 2M12 22q4-6 8 0',
+      'M9 16q1-4 4-3m6 0q3-1 4 3M12 21l3-1 2 2 3-1',
+      'M9 12l4 3m10-3-4 3M12 22q4-5 8 0',
+      'M10 15v1m12-1v1M13 22q3-3 6 0',
+      'M9 15q2 1 4-2m6 0q2 3 4 2M12 23q4-5 8 0'
+    ];
+    const heart = '<path fill="url(#paint)" d="M16 28C12 25 3 20 3 12a7 7 0 0 1 13-4 7 7 0 0 1 13 4c0 8-9 13-13 16Z"/><ellipse fill="#fff" opacity=".48" cx="9" cy="11" rx="2.8" ry="1.6" transform="rotate(-36 9 11)"/>';
+    const palettes = {sex:['#ffe3ee','#dc86aa'], symptoms:['#eee2fa','#b294d2'], moods:['#fff6ce','#edbe69']};
+    const [light, dark] = palettes[key];
+    const id = 'cycle-art-' + key + '-' + index;
+    const shield = '<path fill="#fff3f8" d="M20 12q3 0 6-2l4 2v5q0 5-5 7-5-2-5-7Z"/><path d="m22 16 2 2 3-4" fill="none" stroke="#ac547d" stroke-width="1.6" stroke-linecap="round"/>';
+    let art = face;
+    if (!legacy && key === 'sex') art = heart + (index === 0 ? shield : '<circle cx="22" cy="19" r="5" fill="#fff1f7"/><circle cx="22" cy="19" r="2" fill="#d482a4"/>');
+    else if (!legacy && key === 'symptoms') art = symptomArt[index];
+    else if (!legacy && key === 'moods') {
+      art = face + cheeks + '<path d="' + expressions[index] + '" fill="none" stroke="#855839" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
+      if (index === 7) art += '<path fill="#8db6ca" d="M11 17q-4 5 0 6 4-1 0-6Z"/>';
+    }
+    return '<svg class="cycle-choice-art" viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="' + id +
+      '" x2=".8" y2="1"><stop stop-color="' + light + '"/><stop offset="1" stop-color="' + dark +
+      '"/></linearGradient></defs>' + art.replaceAll('#paint', '#' + id) + '</svg>';
+  }
+
+  function dayIcons(fields) {
+    const row = make('span', '', 'cycle-day-icons');
+    row.setAttribute('aria-hidden', 'true');
+    const ns = 'http://www.w3.org/2000/svg';
+    for (const key of fields.slice(0, 3)) {
+      const icon = document.createElementNS(ns, 'svg');
+      icon.setAttribute('viewBox', '0 0 16 16');
+      icon.dataset.kind = key;
+      const path = document.createElementNS(ns, 'path');
+      path.setAttribute('d', recordIcons[key]);
+      icon.append(path);
+      row.append(icon);
+    }
+    if (fields.length > 3) row.append(make('b', '+' + (fields.length - 3)));
+    return row;
+  }
 
   function notify(id, message = '') {
     $(id).textContent = message;
@@ -35,9 +105,7 @@
 
   function changeDate(date, focusGroup) {
     if (!model.validDate(date)) return;
-    if (date !== selected) {
-      $('daily-controls').querySelectorAll('details[open]').forEach(detail => { detail.open = false; });
-    }
+    if (date !== selected) expanded.clear();
     selected = date;
     notify('save-status');
     render();
@@ -47,19 +115,22 @@
   function dayButton(date, group) {
     const state = phase(summary, date);
     const entry = date <= now ? storage?.data.entries[date] : null;
-    const hasDetails = entry && entryFields.some(key => entry[key]?.length);
+    const fields = entryFields.filter(key => entry?.[key]?.length);
     const isToday = date === now;
     const button = make('button', '', group === 'grid' ? 'cycle-day' : 'cycle-wheel-day');
     button.type = 'button';
     button.dataset.date = date;
     button.dataset.phase = state;
     if (entry?.spotting) button.dataset.spotting = 'true';
-    if (group === 'grid' && hasDetails) button.dataset.entry = 'true';
     button.setAttribute('aria-label', [format(date, true), isToday && '今天', phaseLabels[state],
-      entry?.spotting && spottingLabel, hasDetails && '有其他记录'].filter(Boolean).join('，'));
+      entry?.spotting && spottingLabel, ...fields.map(key => recordLabels[entryFields.indexOf(key)])].filter(Boolean).join('，'));
     button.setAttribute('aria-pressed', String(date === selected));
     if (isToday) button.setAttribute('aria-current', 'date');
     button.onclick = () => changeDate(date, group);
+    if (group === 'grid') {
+      button.append(make('span', String(Number(date.slice(8)))));
+      if (fields.length) button.append(dayIcons(fields));
+    }
     return button;
   }
 
@@ -86,9 +157,7 @@
     const days = Array.from({length: startColumn}, () => make('span'));
     for (let i = 0; i < count; i++) {
       const date = shift(first, i);
-      const button = dayButton(date, 'grid');
-      button.append(make('span', String(i + 1)));
-      days.push(button);
+      days.push(dayButton(date, 'grid'));
     }
     $('grid').replaceChildren(...days);
     $('range').textContent = Number(first.slice(0, 4)) + '年' + Number(first.slice(5, 7)) + '月';
@@ -184,8 +253,9 @@
     $('spotting').checked = !!entry.spotting;
     for (const key of entryFields) {
       const value = entry[key];
-      const label = Array.isArray(value) ? value.join('、') : value;
-      $(key + '-value').textContent = label || '未记录';
+      const open = !!value?.length || expanded.has(key);
+      $(key + '-switch').checked = open;
+      fieldPanel(key).hidden = !open;
       if (key === 'note') {
         if ($('note').value !== (value || '')) $('note').value = value || '';
         continue;
@@ -314,7 +384,10 @@
 
   function render() {
     const date = today();
-    if (selected === now && !$('daily-controls').querySelector('details[open]')) selected = date;
+    if (selected === now && date !== now && document.activeElement !== $('note')) {
+      selected = date;
+      expanded.clear();
+    }
     now = date;
     const wasUnreadable = storage === null;
     try { storage = model.read(); } catch (_) { storage = null; }
@@ -410,6 +483,17 @@
   }
 
   $('spotting').onchange = ({target}) => updateEntry('spotting', target.checked);
+  for (const key of entryFields) {
+    $(key + '-switch').onchange = ({target}) => {
+      if (target.checked) {
+        expanded.add(key);
+        render();
+      } else {
+        expanded.delete(key);
+        updateEntry(key, null);
+      }
+    };
+  }
   // Wait for committed IME text so rendering never interrupts an active composition.
   $('note').oninput = event => {
     if (!event.isComposing) updateEntry('note', event.target.value);
@@ -433,8 +517,11 @@
         for (let i = 0; i <= index; i++) drops.append(make('i'));
         button.append(drops);
       }
-      button.append(make('span', value));
+      const legacy = index >= choices[key].length;
+      if (key !== 'flow') button.innerHTML = choiceArt(key, index, legacy);
+      button.append(make('span', key === 'sex' && !legacy ? sexLabels[index] : value));
       button.onclick = () => {
+        expanded.add(key);
         const current = storage?.data.entries[selected]?.[key];
         if (multiChoiceFields.has(key)) {
           const values = new Set(current || []);
@@ -444,7 +531,7 @@
         } else {
           updateEntry(key, current === value ? null : value);
         }
-        if (button.hidden) $(key).closest('details').querySelector('summary').focus();
+        if (button.hidden) $(key + '-switch').focus();
       };
       $(key).append(button);
     }

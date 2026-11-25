@@ -139,10 +139,10 @@ const server = http.createServer(async (req, res) => {
     assert.equal((await read(key)).periods.at(-1).end, '2026-11-25');
     await page.setViewportSize({width:320, height:750});
 
-    const openField = id => page.locator('summary[aria-controls="cycle-' + id + '"]').click();
+    const openField = id => click('cycle-' + id + '-switch');
     const pill = (id, value) => page.locator('#cycle-' + id).getByRole('button', {name:value, exact:true});
     assert.equal(await page.locator('#cycle-daily-controls select').count(), 0);
-    assert.equal(await page.locator('#cycle-daily-controls details[open]').count(), 0);
+    assert.equal(await page.locator('#cycle-daily-controls [id$="-switch"]:checked').count(), 0);
     await openField('flow');
     assert.deepEqual(await page.locator('#cycle-flow button').allTextContents(), ['少量', '中量', '大量']);
     assert.deepEqual(await page.locator('#cycle-flow button').evaluateAll(buttons =>
@@ -160,40 +160,48 @@ const server = http.createServer(async (req, res) => {
     await pill('flow', '大量').click();
     assert.equal(await pill('flow', '大量').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(248, 220, 230)');
     await openField('flow');
-    assert(await page.locator('#cycle-flow-value').isVisible());
-    assert.equal(await text('cycle-flow-value'), '大量');
+    assert(await page.locator('#cycle-flow').isHidden());
+    assert.equal((await read(key)).entries['2026-11-25'].flow, undefined);
+    await openField('flow');
+    await pill('flow', '大量').click();
     await openField('sex');
-    assert.deepEqual(await page.locator('#cycle-sex button:visible').allTextContents(), ['有保护措施', '无保护措施']);
-    await pill('sex', '无保护措施').click();
-    await pill('sex', '有保护措施').click();
-    assert.equal(await pill('sex', '无保护措施').getAttribute('aria-pressed'), 'false');
+    assert.deepEqual(await page.locator('#cycle-sex button:visible').allTextContents(), ['保护性行为', '无保护性行为']);
+    await pill('sex', '无保护性行为').click();
+    await pill('sex', '保护性行为').click();
+    assert.equal(await pill('sex', '无保护性行为').getAttribute('aria-pressed'), 'false');
     await openField('symptoms');
     assert.deepEqual(await page.locator('#cycle-symptoms button:visible').allTextContents(),
-      ['腹痛', '腰痛', '头痛', '乳房胀痛', '腹胀', '疲劳', '恶心', '痘痘', '便秘', '腹泻', '食欲变化', '分泌物变化']);
+      ['腹痛', '腰痛', '头痛', '乳房胀痛', '腹胀', '疲劳', '痘痘', '分泌物变化']);
+    assert.equal(await page.locator('#cycle-symptoms button:visible svg').count(), 8);
     await pill('symptoms', '腹痛').click();
     await pill('symptoms', '分泌物变化').click();
     await pill('symptoms', '腹痛').click();
     assert.deepEqual((await read(key)).entries['2026-11-25'].symptoms, ['分泌物变化']);
     await openField('moods');
     assert.deepEqual(await page.locator('#cycle-moods button:visible').allTextContents(),
-      ['开心', '平静', '低落', '焦虑', '烦躁', '敏感', '情绪波动']);
-    await pill('moods', '平静').click();
-    await pill('moods', '情绪波动').click();
+      ['兴奋', '开心', '放松', '敏感', '焦虑', '生气', '低落', '悲伤']);
+    await pill('moods', '放松').click();
+    await pill('moods', '兴奋').click();
     await openField('note');
     await page.locator('#cycle-note').fill('测试备注');
-    assert.equal(await text('cycle-sex-value'), '有保护措施');
-    assert.equal(await text('cycle-symptoms-value'), '分泌物变化');
-    assert.equal(await text('cycle-moods-value'), '平静、情绪波动');
+    assert.equal((await read(key)).entries['2026-11-25'].sex, '有保护措施');
+    assert.equal((await read(key)).entries['2026-11-25'].symptoms.join('、'), '分泌物变化');
+    assert.equal((await read(key)).entries['2026-11-25'].moods.join('、'), '放松、兴奋');
     await page.locator('#cycle-note').fill('修改后的测试备注');
+    await click('cycle-calendar-toggle');
+    assert.equal(await cell('2026-11-25').locator('.cycle-day-icons svg').count(), 3);
+    assert.equal(await cell('2026-11-25').locator('.cycle-day-icons b').textContent(), '+2');
+    assert.equal(await cell('2026-11-25').evaluate(el => el.offsetHeight),
+      await cell('2026-11-24').evaluate(el => el.offsetHeight));
     await selectDate('2026-11-24');
-    assert.equal(await page.locator('#cycle-daily-controls details[open]').count(), 0);
-    assert.equal(await text('cycle-flow-value'), '未记录');
+    assert.equal(await page.locator('#cycle-daily-controls [id$="-switch"]:checked').count(), 0);
+    assert(await page.locator('#cycle-flow').isHidden());
     assert.equal((await read(key)).entries['2026-11-25'].note, '修改后的测试备注');
     const persisted = await read(key);
     await context.setOffline(true);
     await page.reload();
     await click('tab-cycle');
-    assert.match(await text('cycle-note-value'), /修改后的测试备注/);
+    assert.match(await page.locator('#cycle-note').inputValue(), /修改后的测试备注/);
     assert.equal(await cell('2026-11-25').getAttribute('data-spotting'), 'true');
     assert.equal(await page.locator('.cycle-panel').first().evaluate(node => getComputedStyle(node).backgroundColor), 'rgb(255, 255, 255)');
 
@@ -241,16 +249,15 @@ const server = http.createServer(async (req, res) => {
     await click('tab-cycle');
     await selectDate('2026-11-24');
     assert.equal(await cell('2026-11-24').getAttribute('data-spotting'), 'true');
-    assert.equal(await text('cycle-flow-value'), '未记录');
-    assert.equal(await text('cycle-note-value'), '旧记录');
+    assert(await page.locator('#cycle-flow').isHidden());
+    assert.equal(await page.locator('#cycle-note').inputValue(), '旧记录');
     assert.deepEqual((await read(key)).periods, persisted.periods);
     await selectDate('2026-11-23');
-    assert.equal(await text('cycle-flow-value'), '中量');
-    assert.equal(await text('cycle-symptoms-value'), '腰酸、疲劳');
-    await openField('sex');
+    assert.equal(await pill('flow', '中量').getAttribute('aria-pressed'), 'true');
+    assert.equal(await pill('symptoms', '疲劳').getAttribute('aria-pressed'), 'true');
     assert.equal(await pill('sex', '有（未注明保护情况）（旧记录）').getAttribute('aria-pressed'), 'true');
     await pill('sex', '有（未注明保护情况）（旧记录）').click();
-    assert.equal(await text('cycle-sex-value'), '未记录');
+    assert.equal((await read(key)).entries['2026-11-23'].sex, undefined);
     assert.deepEqual(errors, []);
     console.log('PASS inline switches, spotting in three views, prediction, single-column layout, and offline backups');
   } finally {
