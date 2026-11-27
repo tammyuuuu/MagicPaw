@@ -20,7 +20,6 @@
   };
 
   let selected = today();
-  let view = 'calendar';
   let screen = 'main';
   let now, storage, summary, spottingDates;
   const spottingLabel = '淋漓 / 点滴出血';
@@ -113,21 +112,21 @@
     $(id).hidden = !message;
   }
 
-  function changeDate(date, focusGroup) {
+  function changeDate(date, focusDay) {
     if (!model.validDate(date)) return;
     if (date !== selected) expanded.clear();
     selected = date;
     notify('save-status');
     render();
-    if (focusGroup) $(focusGroup).querySelector('[aria-pressed=true]')?.focus({preventScroll:true});
+    if (focusDay) $('grid').querySelector('[aria-pressed=true]')?.focus({preventScroll:true});
   }
 
-  function dayButton(date, group) {
+  function dayButton(date) {
     const state = phase(summary, date);
     const entry = date <= now ? storage?.data.entries[date] : null;
     const fields = entryFields.filter(key => entry?.[key]?.length);
     const isToday = date === now;
-    const button = make('button', '', group === 'grid' ? 'cycle-day' : 'cycle-wheel-day');
+    const button = make('button', '', 'cycle-day');
     button.type = 'button';
     button.dataset.date = date;
     button.dataset.phase = state;
@@ -136,11 +135,9 @@
       entry?.spotting && spottingLabel, ...fields.map(key => recordLabels[entryFields.indexOf(key)])].filter(Boolean).join('，'));
     button.setAttribute('aria-pressed', String(date === selected));
     if (isToday) button.setAttribute('aria-current', 'date');
-    button.onclick = () => changeDate(date, group);
-    if (group === 'grid') {
-      button.append(make('span', String(Number(date.slice(8)))));
-      if (fields.length) button.append(dayIcons(fields));
-    }
+    button.onclick = () => changeDate(date, true);
+    button.append(make('span', String(Number(date.slice(8)))));
+    if (fields.length) button.append(dayIcons(fields));
     return button;
   }
 
@@ -154,7 +151,6 @@
   }
 
   function pageDate(step) {
-    if (view === 'ring') return shift(selected, step);
     const first = monthStart(selected);
     if (step < 0) return monthStart(shift(first, -1));
     return monthStart(shift(first, 32));
@@ -167,66 +163,21 @@
     const days = Array.from({length: startColumn}, () => make('span'));
     for (let i = 0; i < count; i++) {
       const date = shift(first, i);
-      days.push(dayButton(date, 'grid'));
+      days.push(dayButton(date));
     }
     $('grid').replaceChildren(...days);
     $('range').textContent = Number(first.slice(0, 4)) + '年' + Number(first.slice(5, 7)) + '月';
-  }
-
-  function renderRing(cycle, status, detail) {
-    const wheel = $('ring-days');
-    const track = $('ring').querySelector('.cycle-wheel-rail');
-    const spottingTrack = $('ring').querySelector('.cycle-wheel-spotting');
-    wheel.replaceChildren();
-    $('ring-date').textContent = format(selected);
-    $('ring-status').textContent = status;
-    $('ring-caption').textContent = detail;
-    // Extend the wheel through the one forecast, keeping all days on the actual current cycle.
-    const forecast = cycle?.current && summary.forecast;
-    const start = cycle?.start || monthStart(selected);
-    const end = cycle ? (forecast && forecast.end > cycle.end ? forecast.end : cycle.end) : monthEnd(selected);
-    const count = duration(start, end);
-    $('range').textContent = rangeText({start, end});
-    const marks = Math.min(count, 36);
-    const visibleDays = new Set(Array.from({length: marks}, (_, i) =>
-      marks === 1 ? 0 : Math.round(i * (count - 1) / (marks - 1))));
-    const selectedIndex = daysBetween(start, selected);
-    if (selectedIndex >= 0 && selectedIndex < count) {
-      for (const index of visibleDays) {
-        const distance = Math.abs(index - selectedIndex);
-        if (distance > 0 && Math.min(distance, count - distance) < count / 48) visibleDays.delete(index);
-      }
-      visibleDays.add(selectedIndex);
-    }
-    for (const index of [...visibleDays].sort((a, b) => a - b)) {
-      const date = shift(start, index);
-      const button = dayButton(date, 'ring-days');
-      const angle = (index + .5) / count * 2 * Math.PI;
-      button.style.left = (50 + Math.sin(angle) * 40) + '%';
-      button.style.top = (50 - Math.cos(angle) * 40) + '%';
-      if (date === selected) button.append(make('span', String(Number(date.slice(8)))));
-      wheel.append(button);
-    }
-
-    const colors = {period: 'var(--cycle-rose-bg)', ovulation: 'var(--cycle-blue-bg)', forecast: '#fff3f7'};
-    const ranges = [];
-    if (cycle) ranges.push({start, end: cycle.period.end || start, kind: 'period'});
-    if (cycle?.ovulation) ranges.push({...cycle.ovulation, kind: 'ovulation'});
-    if (forecast) ranges.push({...forecast, kind: 'forecast'});
-    track.style.background = phaseGradient(ranges, start, count, colors, 'var(--cycle-rail)', 'conic-gradient');
-    spottingTrack.style.background = spottingGradient(spottingRanges(start, end), start, count, 'conic-gradient');
-    if (selected > end) $('ring-caption').textContent = '所选日期超出周期展示范围';
   }
 
   function spottingRanges(start, end) {
     return spottingDates.filter(date => start <= date && date <= end).map(date => ({start: date, end: date, kind: 'spotting'}));
   }
 
-  function spottingGradient(ranges, start, count, layout) {
-    return phaseGradient(ranges, start, count, {spotting: 'var(--cycle-lavender)'}, 'transparent', layout);
+  function spottingGradient(ranges, start, count) {
+    return phaseGradient(ranges, start, count, {spotting: 'var(--cycle-lavender)'}, 'transparent');
   }
 
-  function phaseGradient(ranges, start, count, colors, base, layout) {
+  function phaseGradient(ranges, start, count, colors, base) {
     const stops = [];
     let cursor = 0;
     for (const range of ranges) {
@@ -239,7 +190,7 @@
     }
     if (cursor < count) stops.push(base + ' ' + cursor / count * 100 + '% 100%');
     if (stops.length === 1) return stops[0].split(' ')[0];
-    return layout + '(' + (layout === 'linear-gradient' ? 'to right, ' : '') + stops.join(', ') + ')';
+    return 'linear-gradient(to right, ' + stops.join(', ') + ')';
   }
 
   function renderDaily(cycle, status, detail) {
@@ -303,21 +254,20 @@
     const stripe = make('div', '', 'cycle-stripe');
     const colors = {period: 'var(--cycle-rose)', ovulation: 'var(--cycle-blue-dot)', 'ovulation-day': 'var(--cycle-blue)'};
     stripe.style.width = length / scale * 100 + '%';
-    stripe.style.background = phaseGradient(ranges, start, length, colors, 'var(--cycle-rail)', 'linear-gradient');
+    stripe.style.background = phaseGradient(ranges, start, length, colors, 'var(--cycle-rail)');
     stripe.style.setProperty('--stripe-step', (100 / length) + '%');
     stripe.setAttribute('aria-hidden', 'true');
     if (spots.length) {
       const overlay = make('span', '', 'cycle-stripe-spotting');
-      overlay.style.background = spottingGradient(spots, start, length, 'linear-gradient');
+      overlay.style.background = spottingGradient(spots, start, length);
       stripe.append(overlay);
     }
     return stripe;
   }
 
   function openHistoryDate(date) {
-    view = 'calendar';
     screen = 'main';
-    changeDate(date, 'grid');
+    changeDate(date, true);
     window.scrollTo({top:0});
   }
 
@@ -340,21 +290,11 @@
       if (year !== lastYear) list.append(make('h3', Number(year) + '年', 'cycle-year'));
       lastYear = year;
       const row = make('article', '', 'cycle-panel cycle-history-row');
-      const top = make('div', '', 'cycle-history-top');
       const open = make('button', '', 'cycle-history-choice');
       open.type = 'button';
       open.append(make('strong', (cycle.current ? '当前周期 · 第 ' : '周期 · ') + length + ' 天'),
         make('span', cycle.current ? '开始于 ' + format(cycle.start) : rangeText(cycle), 'cycle-muted'));
-      open.onclick = () => {
-        view = 'ring';
-        show('main');
-        changeDate(cycle.current ? now : cycle.start);
-        $('ring-toggle').focus();
-      };
-      const edit = make('button', '查看日历', 'cycle-link');
-      edit.type = 'button';
-      edit.onclick = () => openHistoryDate(cycle.start);
-      top.append(open, edit);
+      open.onclick = () => openHistoryDate(cycle.start);
       const period = cycle.period;
       const ranges = [{start: period.start, end: period.end || period.start, kind: 'period'}];
       const ovulation = cycle.ovulation;
@@ -367,7 +307,7 @@
       const periodText = period.end ? '实际经期 ' + rangeText(period) : '已记录开始，结束待补录';
       const ovulationText = ovulation && ovulation.end <= cycle.end ? ' · 推算排卵期 ' + rangeText(ovulation) : '';
       const spottingText = spots.length ? ' · ' + spottingLabel + ' ' + spots.length + ' 天' : '';
-      row.append(top, historyStripe(cycle.start, length, scale, ranges, spots),
+      row.append(open, historyStripe(cycle.start, length, scale, ranges, spots),
         make('p', periodText + ovulationText + spottingText, 'cycle-muted'));
       list.append(row);
     }
@@ -410,13 +350,6 @@
       renderHistory();
       return;
     }
-    const ring = view === 'ring';
-    $('calendar-toggle').setAttribute('aria-pressed', String(!ring));
-    $('ring-toggle').setAttribute('aria-pressed', String(ring));
-    $('calendar').hidden = ring;
-    $('ring').hidden = !ring;
-    $('prev').setAttribute('aria-label', ring ? '前一天' : '上个月');
-    $('next').setAttribute('aria-label', ring ? '后一天' : '下个月');
     $('prev').disabled = !model.validDate(pageDate(-1));
     $('next').disabled = !model.validDate(pageDate(1));
     const cycle = cycleFor(summary, selected);
@@ -438,8 +371,7 @@
       if (state) detail += ' · ' + spottingLabel;
       else status = spottingLabel;
     }
-    if (ring) renderRing(cycle, status, detail);
-    else renderCalendar();
+    renderCalendar();
     renderDaily(cycle, status, detail);
     renderForecast();
     if (!storage) notify('save-status', '经期数据读取失败，请从完整备份恢复。');
@@ -554,10 +486,6 @@
   $('today').onclick = () => changeDate(today());
   $('prev').onclick = () => changeDate(pageDate(-1));
   $('next').onclick = () => changeDate(pageDate(1));
-  for (const kind of ['calendar', 'ring']) $(kind + '-toggle').onclick = () => {
-    view = kind;
-    render();
-  };
   const visible = () => !document.getElementById('cycle').hidden;
   window.addEventListener('storage', event => {
     if ((event.key === model.KEY || event.key === null) && visible()) render();

@@ -46,7 +46,6 @@ const server = http.createServer(async (req, res) => {
 
     const cell = date => page.locator('#cycle-grid [data-date="' + date + '"]');
     async function selectDate(date) {
-      await click('cycle-calendar-toggle');
       const dateMonth = date.slice(0, 7);
       let shown = (await page.locator('#cycle-grid [aria-pressed=true]').getAttribute('data-date')).slice(0, 7);
       while (shown !== dateMonth) {
@@ -66,8 +65,7 @@ const server = http.createServer(async (req, res) => {
 
     await click('cycle-spotting');
     assert.equal(await cell('2026-11-25').getAttribute('data-spotting'), 'true');
-    await click('cycle-ring-toggle');
-    assert.match(await page.locator('#cycle-ring-days [aria-pressed=true]').getAttribute('aria-label'), /点滴出血/);
+    assert.match(await cell('2026-11-25').getAttribute('aria-label'), /点滴出血/);
     await click('cycle-history-open');
     assert.equal(await text('cycle-average-period'), '—');
     assert.match(await text('cycle-history-list'), /未归入周期/);
@@ -115,13 +113,14 @@ const server = http.createServer(async (req, res) => {
     assert.equal(await read(journalKey), null);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
 
-    await click('cycle-ring-toggle');
-    const day = page.locator('#cycle-ring-days [aria-pressed=true]');
+    assert.equal(await page.locator('#cycle-ring, #cycle-ring-toggle').count(), 0);
+    const day = cell('2026-11-25');
     assert.match(await day.getAttribute('aria-label'), /11月25日.*预测经期/);
     assert.equal(await day.getAttribute('data-spotting'), 'true');
-    assert.match(await page.locator('.cycle-wheel-spotting').evaluate(el => el.style.background), /conic-gradient/);
     await click('cycle-next');
-    assert.match(await day.getAttribute('aria-label'), /11月26日/);
+    assert.match(await text('cycle-range'), /12月/);
+    await click('cycle-today');
+    assert.equal(await day.getAttribute('aria-pressed'), 'true');
     await page.setViewportSize({width:1100, height:900});
     assert.equal(await page.locator('.cycle-layout').evaluate(el => getComputedStyle(el).gridTemplateColumns.split(' ').length), 1);
     assert.equal(await page.locator('main').evaluate(el => getComputedStyle(el).maxWidth), '600px');
@@ -188,7 +187,6 @@ const server = http.createServer(async (req, res) => {
     assert.equal((await read(key)).entries['2026-11-25'].symptoms.join('、'), '分泌物变化');
     assert.equal((await read(key)).entries['2026-11-25'].moods.join('、'), '放松、兴奋');
     await page.locator('#cycle-note').fill('修改后的测试备注');
-    await click('cycle-calendar-toggle');
     assert.equal(await cell('2026-11-25').locator('.cycle-day-icons svg').count(), 3);
     assert.equal(await cell('2026-11-25').locator('.cycle-day-icons b').textContent(), '+2');
     await openField('bedtime');
@@ -266,7 +264,7 @@ const server = http.createServer(async (req, res) => {
     await pill('sex', '有（未注明保护情况）（旧记录）').click();
     assert.equal((await read(key)).entries['2026-11-23'].sex, undefined);
     assert.deepEqual(errors, []);
-    console.log('PASS inline switches, spotting in three views, prediction, single-column layout, and offline backups');
+    console.log('PASS inline switches, spotting in calendar and history, prediction, single-column layout, and offline backups');
   } finally {
     if (browser) await browser.close();
     await new Promise(resolve => server.close(resolve));

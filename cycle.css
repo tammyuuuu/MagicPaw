@@ -16,15 +16,15 @@
 
 #cycle h2 { color: var(--cycle-ink); font-size: 22px; }
 #cycle h3 { color: var(--cycle-ink); }
-.cycle-heading, .cycle-toolbar, .cycle-date-row, .cycle-history-top {
+.cycle-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
-.cycle-heading { margin-bottom: 13px; }
+.cycle-heading { margin-bottom: 8px; }
 .cycle-heading .cycle-link { padding-left: 0; }
-.cycle-layout, .cycle-side { display: grid; gap: 12px; min-width: 0; }
+.cycle-layout, .cycle-side { display: grid; gap: 8px; min-width: 0; }
 .cycle-panel {
   min-width: 0;
   padding: 15px;
@@ -44,40 +44,39 @@
 .cycle-accent { background: var(--cycle-rose-bg); color: #86304e; font-weight: 600; }
 #cycle button:hover { filter: brightness(.97); }
 #cycle button:disabled { opacity: .45; cursor: default; }
-.cycle-switch {
-  display: inline-flex;
-  gap: 3px;
-  padding: 3px;
-  background: #f9f0f4;
-  border-radius: 11px;
+.cycle-visual { padding-block: 10px; }
+.cycle-date-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 4px;
 }
-.cycle-switch button {
-  padding: 5px 13px;
-  min-height: 32px;
-  border-radius: 8px;
-  white-space: nowrap;
-  color: var(--cycle-muted);
-}
-.cycle-switch button[aria-pressed=true] {
-  background: #fff;
-  color: var(--cycle-pink);
-  box-shadow: 0 1px 4px #6f334717;
-  font-weight: 600;
-}
-.cycle-date-row { margin-top: 5px; justify-content: center; }
-.cycle-pager { display: flex; align-items: center; gap: 3px; }
+.cycle-pager { grid-column: 2; display: flex; align-items: center; gap: 6px; }
 .cycle-pager button {
-  width: 32px;
-  height: 36px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border-radius: 8px;
-  font-size: 23px;
+  font-size: 18px;
   line-height: 1;
-  color: var(--cycle-blue);
+  color: var(--cycle-muted);
+  background: #f4edf0;
 }
-.cycle-pager strong { color: var(--cycle-ink); font-size: 13px; text-align: center; }
+.cycle-pager strong { color: var(--cycle-ink); font-size: 12px; text-align: center; white-space: nowrap; }
+#cycle-today {
+  justify-self: end;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #f4edf0;
+  color: var(--cycle-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
 .cycle-week, .cycle-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.cycle-week { margin: 9px 0 3px; color: var(--cycle-muted); font-size: 12px; text-align: center; }
+.cycle-week { margin: 16px 0 2px; color: var(--cycle-muted); font-size: 12px; text-align: center; }
 .cycle-day {
   position: relative;
   min-width: 0;
@@ -170,83 +169,13 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 5px 12px;
-  padding-top: 10px;
+  padding-top: 6px;
   color: var(--cycle-muted);
   font-size: 11px;
 }
 .cycle-legend span { display: inline-flex; gap: 4px; align-items: center; white-space: nowrap; }
 .cycle-legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .cycle-legend [data-phase=ovulation-day] { border: 2px solid var(--cycle-blue); border-radius: 50%; }
-.cycle-wheel { width: min(100%, 290px); aspect-ratio: 1; position: relative; margin: 5px auto 0; }
-.cycle-wheel-rail {
-  position: absolute;
-  inset: 2%;
-  border-radius: 50%;
-  background: var(--cycle-rail);
-  mask-image: radial-gradient(closest-side, transparent 74%, #000 75% 99%, transparent 100%);
-}
-.cycle-wheel-spotting {
-  position: absolute;
-  inset: 1%;
-  border-radius: 50%;
-  mask-image: radial-gradient(closest-side, transparent 92%, #000 93% 98%, transparent 99%);
-}
-.cycle-wheel-day {
-  position: absolute;
-  z-index: 1;
-  transform: translate(-50%, -50%);
-  width: 21px;
-  height: 21px;
-  padding: 0;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-}
-.cycle-wheel-day::before {
-  content: "";
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #b9adb4;
-}
-.cycle-wheel-day[data-phase=period]::before { background: #bc5476; }
-.cycle-wheel-day[data-phase=forecast]::before { background: #fff8fb; border: 1px dashed var(--cycle-pink); }
-.cycle-wheel-day[data-phase=ovulation]::before { background: #5b8db3; }
-.cycle-wheel-day[data-phase=ovulation-day]::before { background: #fff; border: 2px solid var(--cycle-blue); }
-.cycle-wheel-day[data-spotting=true][data-phase=""]::before { background: var(--cycle-lavender); }
-.cycle-wheel-day[aria-pressed=true] {
-  z-index: 2;
-  width: 30px;
-  height: 30px;
-  background: #fff;
-  color: var(--cycle-ink);
-  border: 2px solid #795c70;
-  font-size: 12px;
-  font-weight: 700;
-}
-.cycle-wheel-day[aria-pressed=true]::before { display: none; }
-.cycle-wheel-day[aria-pressed=true][data-spotting=true]::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 auto;
-  width: 7px;
-  height: 7px;
-  border: 1px solid #fff;
-  border-radius: 50%;
-  background: var(--cycle-lavender);
-}
-.cycle-wheel-copy {
-  position: absolute;
-  inset: 20% 19%;
-  display: grid;
-  align-content: center;
-  gap: 3px;
-  text-align: center;
-  pointer-events: none;
-  color: var(--cycle-muted);
-  font-size: 12px;
-}
-.cycle-wheel-copy strong { font-size: clamp(15px, 4vw, 20px); line-height: 1.35; color: var(--cycle-ink); }
 .cycle-kicker { color: var(--cycle-pink); font-size: 13px; font-weight: 600; }
 #cycle-status { margin: 3px 0; font-size: 20px; line-height: 1.4; }
 .cycle-estimates { display: grid; grid-template-columns: auto 1fr; gap: 4px 9px; margin: 9px 0 0; font-size: 13px; }
@@ -264,7 +193,6 @@
 .cycle-history-row { margin-bottom: 8px; }
 .cycle-history-choice { display: grid; text-align: left; gap: 2px; padding: 0; }
 .cycle-history-choice strong { color: var(--cycle-ink); font-size: 15px; }
-.cycle-history-top .cycle-link { flex: none; }
 .cycle-stripe { position: relative; overflow: hidden; height: 12px; border-radius: 8px; margin: 8px 0 5px; }
 .cycle-stripe-spotting { position: absolute; inset: auto 0 0; height: 5px; }
 .cycle-stripe::after {

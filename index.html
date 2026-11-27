@@ -193,31 +193,17 @@ body:has(.sl-edit-dialog[open]){overflow:hidden}
     </div>
     <div class="cycle-layout">
       <div class="cycle-panel cycle-visual">
-        <div class="cycle-toolbar">
-          <div class="cycle-switch" role="group" aria-label="经期视图">
-            <button type="button" id="cycle-calendar-toggle" aria-pressed="true">日历</button>
-            <button type="button" id="cycle-ring-toggle" aria-pressed="false">周期环</button>
-          </div>
-          <button type="button" class="cycle-link" id="cycle-today">回到今天</button>
-        </div>
         <div class="cycle-date-row">
           <div class="cycle-pager">
             <button type="button" id="cycle-prev" aria-label="上个月">‹</button>
             <strong id="cycle-range"></strong>
             <button type="button" id="cycle-next" aria-label="下个月">›</button>
           </div>
+          <button type="button" id="cycle-today">今天</button>
         </div>
         <div id="cycle-calendar">
           <div class="cycle-week" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
           <div class="cycle-grid" id="cycle-grid" role="group" aria-label="经期日历"></div>
-        </div>
-        <div id="cycle-ring" hidden>
-          <div class="cycle-wheel">
-            <div class="cycle-wheel-rail" aria-hidden="true"></div>
-            <div class="cycle-wheel-spotting" aria-hidden="true"></div>
-            <div id="cycle-ring-days" role="group" aria-label="周期日期"></div>
-            <div class="cycle-wheel-copy"><span id="cycle-ring-date"></span><strong id="cycle-ring-status"></strong><span id="cycle-ring-caption"></span></div>
-          </div>
         </div>
         <div class="cycle-legend" aria-label="图例">
           <span><i data-phase="period"></i>实际经期</span><span><i data-phase="forecast"></i>预测经期</span>
