@@ -7,7 +7,8 @@
     flow: ['少量', '中量', '大量'],
     sex: ['有保护措施', '无保护措施'],
     symptoms: ['腹痛', '腰痛', '头痛', '乳房胀痛', '腹胀', '疲劳', '痘痘', '分泌物变化'],
-    moods: ['兴奋', '开心', '放松', '敏感', '焦虑', '生气', '低落', '悲伤']
+    moods: ['兴奋', '开心', '放松', '敏感', '焦虑', '生气', '低落', '悲伤'],
+    bedtime: ['亥时', '子时', '丑时']
   };
   const aliases = {
     flow: new Map([['中等', '中量'], ['较多', '大量']]),
@@ -54,6 +55,7 @@
         (entry.sex !== undefined && !accepts('sex', entry.sex)) ||
         (entry.symptoms !== undefined && (!Array.isArray(entry.symptoms) || entry.symptoms.some(value => !accepts('symptoms', value)))) ||
         (entry.moods !== undefined && (!Array.isArray(entry.moods) || entry.moods.some(value => !accepts('moods', value)))) ||
+        (entry.bedtime !== undefined && !choices.bedtime.includes(entry.bedtime)) ||
         (entry.note !== undefined && (typeof entry.note !== 'string' || entry.note.length > 2000))) {
         throw Error('每日经期记录格式异常');
       }

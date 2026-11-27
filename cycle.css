@@ -162,6 +162,7 @@
 .cycle-day-icons [data-kind=sex] { color: #b5688b; }
 .cycle-day-icons [data-kind=symptoms] { color: #9172ac; }
 .cycle-day-icons [data-kind=moods] { color: #9d793e; }
+.cycle-day-icons [data-kind=bedtime] { color: #8864b0; fill: currentColor; stroke-width: 1; }
 .cycle-day-icons [data-kind=note] { color: #666896; }
 .cycle-day-icons b { margin-left: 1px; font-size: 7px; line-height: 1; color: var(--cycle-muted); }
 .cycle-legend {
@@ -358,6 +359,9 @@
 #cycle-sex { --option-base:#fdf1f6; --option-picked:#f6d8e6; --option-edge:#e6aac5; --option-ink:#994969; }
 #cycle-symptoms { --option-base:#f6f1fc; --option-picked:#eadcf8; --option-edge:#c9afe2; --option-ink:#76548c; }
 #cycle-moods { --option-base:#fff8e8; --option-picked:#f9e7ba; --option-edge:#e6c27e; --option-ink:#825b2d; }
+#cycle-bedtime { --option-base:#f6f0fb; --option-picked:#e8d8f6; --option-edge:#c6a9df; --option-ink:#76548c; }
+#cycle-bedtime .cycle-option { gap: 2px; }
+#cycle-bedtime small { font-size: 10px; white-space: nowrap; }
 .cycle-options .cycle-option { background: var(--option-base, #f4f6f9); }
 .cycle-options .cycle-option[aria-pressed=true] {
   background: var(--option-picked, var(--cycle-rose-bg));

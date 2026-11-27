@@ -191,6 +191,13 @@ const server = http.createServer(async (req, res) => {
     await click('cycle-calendar-toggle');
     assert.equal(await cell('2026-11-25').locator('.cycle-day-icons svg').count(), 3);
     assert.equal(await cell('2026-11-25').locator('.cycle-day-icons b').textContent(), '+2');
+    await openField('bedtime');
+    await pill('bedtime', '子时 23:00—01:00').click();
+    await pill('bedtime', '丑时 01:00—03:00').click();
+    assert.equal((await read(key)).entries['2026-11-25'].bedtime, '丑时');
+    assert.equal((await read(key)).entries['2026-11-26'], undefined);
+    assert.equal(await cell('2026-11-25').locator('svg[data-kind=bedtime]').count(), 1);
+    assert.equal(await cell('2026-11-25').locator('.cycle-day-icons b').textContent(), '+3');
     assert.equal(await cell('2026-11-25').evaluate(el => el.offsetHeight),
       await cell('2026-11-24').evaluate(el => el.offsetHeight));
     await selectDate('2026-11-24');

@@ -34,9 +34,11 @@
     sex: 'M8 13.5 3 8.5C-1 4.5 4.5.5 8 5c3.5-4.5 9-.5 5 3.5Z',
     symptoms: 'M1 8h3l2-4 3 8 2-4h4',
     moods: 'M14 8a6 6 0 1 1-12 0 6 6 0 0 1 12 0ZM5.5 6h.1m4.8 0h.1M5.5 9.5q2.5 3 5 0',
+    bedtime: 'M7 2a6 6 0 1 0 7 8A6 6 0 0 1 7 2Z',
     note: 'M4 2.5h8v11H4zM6 6h4M6 9h4'
   };
-  const recordLabels = ['经量', '性行为', '身体症状', '心情', '备注'];
+  const recordLabels = ['经量', '性行为', '身体症状', '心情', '入睡时间', '备注'];
+  const bedtimeRanges = ['21:00—23:00', '23:00—01:00', '01:00—03:00'];
   const sexLabels = ['保护性行为', '无保护性行为'];
 
   function choiceArt(key, index, legacy) {
@@ -65,12 +67,18 @@
       'M9 15q2 1 4-2m6 0q2 3 4 2M12 23q4-5 8 0'
     ];
     const heart = '<path fill="url(#paint)" d="M16 28C12 25 3 20 3 12a7 7 0 0 1 13-4 7 7 0 0 1 13 4c0 8-9 13-13 16Z"/><ellipse fill="#fff" opacity=".48" cx="9" cy="11" rx="2.8" ry="1.6" transform="rotate(-36 9 11)"/>';
-    const palettes = {sex:['#ffe3ee','#dc86aa'], symptoms:['#eee2fa','#b294d2'], moods:['#fff6ce','#edbe69']};
+    const palettes = {sex:['#ffe3ee','#dc86aa'], symptoms:['#eee2fa','#b294d2'], moods:['#fff6ce','#edbe69'],
+      bedtime:['#ede1fa','#a581ce']};
     const [light, dark] = palettes[key];
     const id = 'cycle-art-' + key + '-' + index;
     const shield = '<path fill="#fff3f8" d="M20 12q3 0 6-2l4 2v5q0 5-5 7-5-2-5-7Z"/><path d="m22 16 2 2 3-4" fill="none" stroke="#ac547d" stroke-width="1.6" stroke-linecap="round"/>';
     let art = face;
-    if (!legacy && key === 'sex') art = heart + (index === 0 ? shield : '<circle cx="22" cy="19" r="5" fill="#fff1f7"/><circle cx="22" cy="19" r="2" fill="#d482a4"/>');
+    if (key === 'bedtime') {
+      art = '<path fill="url(#paint)" d="M15 4a12 12 0 1 0 13 16A12 12 0 0 1 15 4Z"/>' +
+        '<path fill="#ae8ed1" d="M23 3l1.4 3.6L28 8l-3.6 1.4L23 13l-1.4-3.6L18 8l3.6-1.4Z"/>';
+      if (index >= 1) art += '<circle cx="29" cy="13" r="1.4" fill="#ad8ed0"/>';
+      if (index === 2) art += '<circle cx="29" cy="4" r="1.2" fill="#ad8ed0"/>';
+    } else if (!legacy && key === 'sex') art = heart + (index === 0 ? shield : '<circle cx="22" cy="19" r="5" fill="#fff1f7"/><circle cx="22" cy="19" r="2" fill="#d482a4"/>');
     else if (!legacy && key === 'symptoms') art = symptomArt[index];
     else if (!legacy && key === 'moods') {
       art = face + cheeks + '<path d="' + expressions[index] + '" fill="none" stroke="#855839" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>';
@@ -85,7 +93,9 @@
     const row = make('span', '', 'cycle-day-icons');
     row.setAttribute('aria-hidden', 'true');
     const ns = 'http://www.w3.org/2000/svg';
-    for (const key of fields.slice(0, 3)) {
+    const visibleFields = fields.slice(0, 3);
+    if (fields.includes('bedtime') && !visibleFields.includes('bedtime')) visibleFields[2] = 'bedtime';
+    for (const key of visibleFields) {
       const icon = document.createElementNS(ns, 'svg');
       icon.setAttribute('viewBox', '0 0 16 16');
       icon.dataset.kind = key;
@@ -520,6 +530,7 @@
       const legacy = index >= choices[key].length;
       if (key !== 'flow') button.innerHTML = choiceArt(key, index, legacy);
       button.append(make('span', key === 'sex' && !legacy ? sexLabels[index] : value));
+      if (key === 'bedtime') button.append(make('small', bedtimeRanges[index]));
       button.onclick = () => {
         expanded.add(key);
         const current = storage?.data.entries[selected]?.[key];
